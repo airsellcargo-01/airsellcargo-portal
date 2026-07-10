@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Air Waybill (AWB) - Printable</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Print Action Button (Hidden on actual print) -->
+    <div class="no-print" style="padding: 10px; background: #f0f0f0; text-align: right;">
+        <button onclick="window.print()">Print Air Waybill</button>
+    </div>
+
+    <!-- Main AWB Document Container -->
+    <div class="awb-container">
+        <!-- Header Section -->
+        <div class="awb-row">
+            <div class="awb-col-3 border">
+                <strong>Airline Code / No.</strong>
+                <div class="field-data">001 - 12345678</div>
+            </div>
+            <div class="awb-col-6 border text-center">
+                <h2>Air Waybill</h2>
+                <small>Not Negotiable / Master Air Waybill</small>
+            </div>
+            <div class="awb-col-3 border">
+                <strong>Destination Airport</strong>
+                <div class="field-data">LHR</div>
+            </div>
+        </div>
+
+        <!-- Shipper & Consignee Row -->
+        <div class="awb-row">
+            <div class="awb-col-6 border">
+                <strong>Shipper's Name and Address</strong>
+                <div class="field-data address">
+                    CABLE AND STEEL COMPANY<br>
+                    123 INDUSTRIAL STREET<br>
+                    NEW YORK, USA
+                </div>
+            </div>
+            <div class="awb-col-6 border">
+                <strong>Consignee's Name and Address</strong>
+                <div class="field-data address">
+                    CABLE BIG STORE<br>
+                    4321 ROGERS STREET<br>
+                    LONDON, ENGLAND
+                </div>
+            </div>
+        </div>
+
+        <!-- Routing and Carrier Info -->
+        <div class="awb-row">
+            <div class="awb-col-4 border"><strong>Airport of Departure</strong><br><span class="field-data">JFK</span></div>
+            <div class="awb-col-2 border"><strong>To</strong><br><span class="field-data">LHR</span></div>
+            <div class="awb-col-3 border"><strong>By First Carrier</strong><br><span class="field-data">American Airlines (AA)</span></div>
+            <div class="awb-col-3 border"><strong>Currency / CHGS Code</strong><br><span class="field-data">USD / PP</span></div>
+        </div>
+
+        <!-- Rating / Cargo Details Table -->
+        <table class="awb-table border">
+            <thead>
+                <tr>
+                    <th>No. of Pieces</th>
+                    <th>Gross Weight</th>
+                    <th>Rate Class</th>
+                    <th>Chargeable Weight</th>
+                    <th>Rate / Charge</th>
+                    <th>Total</th>
+                    <th>Nature and Quantity of Goods</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>100 kg</td>
+                    <td>As Per Tariff</td>
+                    <td>100 kg</td>
+                    <td>9.00</td>
+                    <td>900.00</td>
+                    <td>Steel Cable Reels<br><small>Dims: 11x11x11 cm</small></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Charges Summary Footer -->
+        <div class="awb-row">
+            <div class="awb-col-4 border">
+                <strong>Total Prepaid Charges</strong>
+                <div class="field-data">$900.00</div>
+            </div>
+            <div class="awb-col-4 border">
+                <strong>Total Collect Charges</strong>
+                <div class="field-data">0.00</div>
+            </div>
+            <div class="awb-col-4 border">
+                <strong>Signature of Shipper/Agent</strong>
+                <div style="height: 40px;"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
