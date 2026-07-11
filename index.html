@@ -77,6 +77,36 @@
                             <a href="awb-template.html" target="_blank" class="btn btn-secondary btn-sm">View / Print</a>
                         </td>
                     </tr>
+                    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Retrieve the saved shipments from localStorage
+    const savedShipments = JSON.parse(localStorage.getItem('airCargoShipments')) || [];
+    
+    // 2. Locate your dashboard table body or list container
+    // Note: Replace 'dashboardTableBody' with the actual ID used in your HTML layout
+    const tableBody = document.getElementById('dashboardTableBody'); 
+    
+    if (!tableBody) return;
+
+    // Clear any static placeholder rows if data exists
+    if (savedShipments.length > 0) {
+        tableBody.innerHTML = '';
+    }
+
+    // 3. Loop through and dynamically append rows to the operational log
+    savedShipments.forEach(shipment => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${shipment.awbNumber}</strong></td>
+            <td>${shipment.origin}</td>
+            <td>${shipment.destination}</td>
+            <td>${shipment.timestamp}</td>
+            <td><span class="status-badge pending">${shipment.status}</span></td>
+        `;
+        tableBody.appendChild(row);
+    });
+});
+</script>
                 </tbody>
             </table>
         </main>
