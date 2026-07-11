@@ -2,103 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Air Waybill (AWB) - Printable</title>
+    <title>Air Waybill (AWB) - Interactive IATA 600 Form</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Print Action Button (Hidden on actual print) -->
-    <div class="no-print" style="padding: 10px; background: #f0f0f0; text-align: right;">
-        <button onclick="window.print()">Print Air Waybill</button>
-    </div>
-
-    <!-- Main AWB Document Container -->
-    <div class="awb-container">
-        <!-- Header Section -->
-        <div class="awb-row">
-            <div class="awb-col-3 border">
-                <strong>Airline Code / No.</strong>
-                <div class="field-data">001 - 12345678</div>
-            </div>
-            <div class="awb-col-6 border text-center">
-                <h2>Air Waybill</h2>
-                <small>Not Negotiable / Master Air Waybill</small>
-            </div>
-            <div class="awb-col-3 border">
-                <strong>Destination Airport</strong>
-                <div class="field-data">LHR</div>
-            </div>
-        </div>
-
-        <!-- Shipper & Consignee Row -->
-        <div class="awb-row">
-            <div class="awb-col-6 border">
-                <strong>Shipper's Name and Address</strong>
-                <div class="field-data address">
-                    CABLE AND STEEL COMPANY<br>
-                    123 INDUSTRIAL STREET<br>
-                    NEW YORK, USA
-                </div>
-            </div>
-            <div class="awb-col-6 border">
-                <strong>Consignee's Name and Address</strong>
-                <div class="field-data address">
-                    CABLE BIG STORE<br>
-                    4321 ROGERS STREET<br>
-                    LONDON, ENGLAND
-                </div>
-            </div>
-        </div>
-
-        <!-- Routing and Carrier Info -->
-        <div class="awb-row">
-            <div class="awb-col-4 border"><strong>Airport of Departure</strong><br><span class="field-data">JFK</span></div>
-            <div class="awb-col-2 border"><strong>To</strong><br><span class="field-data">LHR</span></div>
-            <div class="awb-col-3 border"><strong>By First Carrier</strong><br><span class="field-data">American Airlines (AA)</span></div>
-            <div class="awb-col-3 border"><strong>Currency / CHGS Code</strong><br><span class="field-data">USD / PP</span></div>
-        </div>
-
-        <!-- Rating / Cargo Details Table -->
-        <table class="awb-table border">
-            <thead>
-                <tr>
-                    <th>No. of Pieces</th>
-                    <th>Gross Weight</th>
-                    <th>Rate Class</th>
-                    <th>Chargeable Weight</th>
-                    <th>Rate / Charge</th>
-                    <th>Total</th>
-                    <th>Nature and Quantity of Goods</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>100 kg</td>
-                    <td>As Per Tariff</td>
-                    <td>100 kg</td>
-                    <td>9.00</td>
-                    <td>900.00</td>
-                    <td>Steel Cable Reels<br><small>Dims: 11x11x11 cm</small></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Charges Summary Footer -->
-        <div class="awb-row">
-            <div class="awb-col-4 border">
-                <strong>Total Prepaid Charges</strong>
-                <div class="field-data">$900.00</div>
-            </div>
-            <div class="awb-col-4 border">
-                <strong>Total Collect Charges</strong>
-                <div class="field-data">0.00</div>
-            </div>
-            <div class="awb-col-4 border">
-                <strong>Signature of Shipper/Agent</strong>
-                <div style="height: 40px;"></div>
-            </div>
+    <!-- Navigation & Action Controls -->
+    <div class="no-print" style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+        <a href="index.html" style="text-decoration: none; color: #007bff; font-family: monospace; font-weight: bold;">&larr; Back to Dashboard</a>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" form="awbForm" style="padding: 8px 16px; background-color: #28a745; color: white; border: 1px solid #000; font-family: monospace; font-weight: bold; cursor: pointer;">Save Operation</button>
+            <button onclick="window.print()" style="padding: 8px 16px; background-color: #ffffff; color: #000; border: 1px solid #000; font-family: monospace; font-weight: bold; cursor: pointer;">Print Document</button>
         </div>
     </div>
+
+    <!-- Master IATA Form Wrapper -->
+    <form id="awbForm">
+        <div class="awb-container">
+            
+            <!-- Row 1: Airline Alpha-Numeric Identifiers -->
+            <div class="awb-row">
+                <div class="border awb-col-3">
+                    <span class="iata-header-label">Airline Prefix</span>
+                    <input type="text" id="airline_prefix" maxlength="3" value="001" required>
+                </div>
+                <div class="border awb-col-6 text-center">
+                    <h2 style="margin: 0; text-transform: uppercase; letter-spacing: 1px;">Air Waybill</h2>
+                    <small style="font-size: 9px; text-transform: uppercase;">Not Negotiable / Master Air Waybill</small>
+                </div>
+                <div class="border awb-col-3">
+                    <span class="iata-header-label">AWB Serial No.</span>
+                    <input type="text" id="awb_number" placeholder="12345675" required>
+                </div>
+            </div>
+
+            <!-- Row 2: Participant Entitlements (Shipper & Consignee) -->
+            <div class="awb-row">
+                <div class="border awb-col-6">
+                    <span class="iata-header-label">Shipper's Name and Address</span>
+                    <textarea id="shipper_details" rows="4" placeholder="CABLE AND STEEL COMPANY&#10;123 INDUSTRIAL STREET&#10;NEW YORK, USA" required style="width: 100%; border: none; resize: none; font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase;"></textarea>
+                </div>
+                <div class="border awb-col-6">
+                    <span class="iata-header-label">Consignee's Name and Address</span>
+                    <textarea id="consignee_details" rows="4" placeholder="CABLE BIG STORE&#10;4321 ROGERS STREET&#10;LONDON, ENGLAND" required style="width: 100%; border: none; resize: none; font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase;"></textarea>
+                </div>
+            </div>
+
+            <!-- Row 3: Flight Routing Paths & Codes -->
+            <div class="awb-row">
+                <div class="border awb-col-4">
+                    <span class="iata-header-label">Airport of Departure (Origin)</span>
+                    <input type="text" id="origin" maxlength="3" placeholder="JFK" required>
+                </div>
+                <div class="border awb-col-2">
+                    <span class="iata-header-label">To</span>
+                    <input type="text" id="to_airport" maxlength="3" placeholder="LHR" required>
+                </div>
+                <div class="border awb-col-3">
+                    <span class="iata-header-label">By First Carrier</span>
+                    <input type="text" id="carrier" placeholder="American Airlines (AA)" required>
+                </div>
+                <div class="border awb-col-3">
+                    <span class="iata-header-label">Currency / CHGS Code</span>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="currency" maxlength="3" value="USD" style="width: 50%;">
+                        <input type="text" id="chgs_code" maxlength="2" value="PP" style="width: 50%;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4: Cargo Rating Line Item Grid (IATA Specification Matrix) -->
+            <div class="awb-row">
+                <table class="awb-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">No. of Pcs</th>
+                            <th style="width: 15%;">Gross Wt.</th>
+                            <th style="width: 15%;">Rate Class</th>
+                            <th style="width: 15%;">Chrg. Wt.</th>
+                            <th style="width: 10%;">Rate</th>
+                            <th style="width: 10%;">Total</th>
+                            <th style="width: 25%;">Nature & Qty of Goods</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" id="pieces" value="1" required style="text-align: center;"></td>
+                            <td><input type="text" id="weight" placeholder="100 kg" required style="text-align: center;"></td>
+                            <td><input type="text" id="rate_class" value="As Per Tariff" required style="text-align: center;"></td>
+                            <td><input type="text" id="chargeable_weight" placeholder="100 kg" required style="text-align: center;"></td>
+                            <td><input type="text" id="rate_charge" placeholder="9.00" required style="text-align: center;"></td>
+                            <td><input type="text" id="total_charge" placeholder="900.00" required style="text-align: center;"></td>
+                            <td><input type="text" id="goods_desc" value="STEEL CABLE REELS" required></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Row 5: Financial Summary Accounting Footer -->
+            <div class="awb-row">
+                <div class="border awb-col-4">
+                    <span class="iata-header-label">Total Prepaid Charges</span>
+                    <input type="text" id="total_prepaid" value="$900.00">
+                </div>
+                <div class="border awb-col-4">
+                    <span class="iata-header-label">Total Collect Charges</span>
+                    <input type="text" id="total_collect" value="0.00">
+                </div>
+                <div class="border awb-col-4">
+                    <span class="iata-header-label">Destination Airport</span>
+                    <input type="text" id="destination" maxlength="3" placeholder="LHR" required>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
     <script src="validation.js"></script>
 </body>
 </html>
