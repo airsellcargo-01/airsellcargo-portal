@@ -1,6 +1,6 @@
 /* Base Layout Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Courier New", Courier, monospace; /* Set global IATA standard font */
     font-size: 12px;
     margin: 0;
     padding: 0;
@@ -43,10 +43,10 @@ body {
     text-align: left;
 }
 
-/* --- PRINT RULES --- */
+/* --- IATA COMPLIANT PRINT RULES --- */
 @media print {
     /* Hide screen-only interactive elements */
-    .no-print {
+    header, footer, nav, button, .btn, .no-print {
         display: none !important;
     }
     
@@ -57,19 +57,32 @@ body {
     }
     
     body {
-        background: none;
+        background: #fff;
+        color: #000;
         -webkit-print-color-adjust: exact; /* Ensures accurate color/shading rendering */
         print-color-adjust: exact;
+        font-family: "Courier New", Courier, monospace; /* Keeps font locked to Courier on physical paper */
     }
 
     .awb-container {
-        width: 100%;
-        padding: 0;
-        box-shadow: none;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
     }
 
-    /* Prevent the document table or signature blocks from fragmenting across pages */
-    .awb-row, table, tr {
+    /* Prevent the document table or grid components from splitting across pages */
+    .awb-row, table, tr, .border {
         page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Keep field elements cleanly outlined */
+    input, select, textarea {
+        border: 1px solid #000 !important;
+        background: transparent !important;
+        color: #000 !important;
+        font-family: "Courier New", Courier, monospace !important; /* Forces form fields to match */
     }
 }
