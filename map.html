@@ -2,203 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Air Waybill - 001-12345678</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoOps - Live Flight Route Visualizer</title>
+    <!-- Include Leaflet CSS for map styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f4f6f9;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        .map-overlay-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 320px;
+            border: 1px solid #000;
+        }
+        .map-overlay-panel h2 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        .route-item {
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding: 6px;
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <!-- Print Action Controls (Hidden on printout) -->
-    <div class="no-print actions-bar">
-        <button onclick="window.print()">Print Air Waybill</button>
+
+    <!-- Control Overlay Panel for Manifest Status -->
+    <div class="map-overlay-panel">
+        <h2>Live Route Manifest</h2>
+        <div id="routeList">Tracking inactive. No active manifests loaded.</div>
+        <a href="index.html" class="back-link">&larr; Return to Dashboard</a>
     </div>
 
-    <!-- Main AWB Document Layout -->
-    <div class="awb-document">
-        
-        <!-- Top Row: Air Waybill Numbering -->
-        <div class="grid-row border-bottom">
-            <div class="col-3 border-right padding-sm">
-                <span class="label">Airline Code</span>
-                <div class="value font-lg">001</div>
-            </div>
-            <div class="col-3 border-right padding-sm">
-                <span class="label">Airport City</span>
-                <div class="value font-lg">NYC</div>
-            </div>
-            <div class="col-6 padding-sm">
-                <span class="label">Serial No.</span>
-                <div class="value font-lg">12345678</div>
-            </div>
-        </div>
+    <!-- Map Canvas Element -->
+    <div id="map"></div>
 
-        <!-- Row 2: Shipper Details & Header Title -->
-        <div class="grid-row border-bottom">
-            <div class="col-6 border-right padding-sm min-h-100">
-                <span class="label">Shipper's Name and Address</span>
-                <span class="label-right">Shipper's Account Number</span>
-                <div class="value address-block">
-                    CABLE AND STEEL COMPANY<br>
-                    156/456 1234 INDUSTRIAL STREET<br>
-                    NEW YORK USA<br>
-                    PHONE: 555 55 55
-                </div>
-            </div>
-            <div class="col-6 padding-sm text-center">
-                <h1 class="main-title">Air Waybill</h1>
-                <div class="subtitle">Not Negotiable</div>
-                <div class="bold-title-sm">Master Air Waybill</div>
-                <div class="issued-by text-left">
-                    <span class="label">Issued by:</span> AMERICAN AIRLINES CARGO<br>
-                    P.O. BOX 619616, D/FW AIRPORT TEXAS, USA
-                </div>
-            </div>
-        </div>
+    <!-- Include Leaflet JS Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // 1. Core IATA Airport Coordinates Lookup Database
+        const airportRegistry = {
+            'JFK': [40.6398, -73.7789],
+            'LHR': [51.4700, -0.4543],
+            'DXB': [25.2532, 55.3657],
+            'SIN': [1.3644, 103.9915],
+            'HKG': [22.3080, 113.9185],
+            'FRA': [50.0379, 8.5622]
+        };
 
-        <!-- Row 3: Consignee Details & Agent Info -->
-        <div class="grid-row border-bottom">
-            <div class="col-6 border-right padding-sm min-h-100">
-                <span class="label">Consignee's Name and Address</span>
-                <span class="label-right">Consignee's Account Number</span>
-                <div class="value address-block">
-                    CABLE BIG STORE<br>
-                    4321 ROGERS STREET<br>
-                    LONDON ENGLAND<br>
-                    PHONE: 555 12 13
-                </div>
-            </div>
-            <div class="col-6 padding-sm">
-                <div class="sub-row border-bottom min-h-50">
-                    <span class="label">Issuing Carrier's Agent Name and City</span>
-                    <div class="value text-xs">
-                        BOND STREET FORWARDERS<br>
-                        7 QUEEN STREET, LONDON ENGLAND (PH: 555 55 12)
-                    </div>
-                </div>
-                <div class="grid-row text-xs">
-                    <div class="col-6 border-right padding-xs">
-                        <span class="label">Agent's IATA Code</span>
-                        <div class="value">11-1-0000</div>
-                    </div>
-                    <div class="col-6 padding-xs">
-                        <span class="label">Account No.</span>
-                        <div class="value"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        // 2. Initialize the global map view focused over the Atlantic corridor
+        const map = L.map('map').setView([30.0, -10.0], 3);
 
-        <!-- Row 4: Departure Airport & Accounting Info -->
-        <div class="grid-row border-bottom">
-            <div class="col-6 border-right padding-sm">
-                <span class="label">Airport of Departure (Addr of First Carrier) & Requested Routing</span>
-                <div class="value bold">JFK / NEW YORK</div>
-            </div>
-            <div class="col-6 padding-sm">
-                <span class="label">Accounting Information</span>
-                <div class="value text-xs">NOTIFY: CABLE BIG STORE PH: 555 12 13</div>
-            </div>
-        </div>
+        // 3. Apply standard, crisp high-contrast map textures (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+        }).addTo(map);
 
-        <!-- Row 5: Routing Matrix Blocks -->
-        <div class="grid-row border-bottom text-center text-xs">
-            <div class="col-1 border-right padding-xs"><span class="label">To</span><div class="value">LHR</div></div>
-            <div class="col-2 border-right padding-xs"><span class="label">By First Carrier</span><div class="value">AA</div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">To</span><div class="value"></div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">By</span><div class="value"></div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">To</span><div class="value"></div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">By</span><div class="value"></div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">Currency</span><div class="value">USD</div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">CHGS</span><div class="value">PP</div></div>
-            <div class="col-1 border-right padding-xs"><span class="label">WT/VAL</span><div class="value">PPD</div></div>
-            <div class="col-1 padding-xs"><span class="label">Other</span><div class="value">PPD</div></div>
-        </div>
+        // 4. Load saved operational records out of LocalStorage
+        const savedShipments = JSON.parse(localStorage.getItem('airCargoShipments')) || [];
+        const routeListEl = document.getElementById('routeList');
 
-        <!-- Row 6: Destination, Flights, and Insurance Codes -->
-        <div class="grid-row border-bottom text-xs">
-            <div class="col-3 border-right padding-xs"><span class="label">Airport of Destination</span><div class="value bold">HEATHROW</div></div>
-            <div class="col-3 border-right padding-xs"><span class="label">Requested Flight/Date</span><div class="value">AA1234-12</div></div>
-            <div class="col-3 border-right padding-xs"><span class="label">Amount of Insurance</span><div class="value">NIL</div></div>
-            <div class="col-3 padding-xs"><span class="label">Declared Value for Carriage</span><div class="value">0</div></div>
-        </div>
-
-        <!-- Row 7: Handling Information Block -->
-        <div class="grid-row border-bottom padding-sm min-h-50">
-            <div class="col-12">
-                <span class="label">Handling Information</span>
-                <div class="value text-xs"></div>
-            </div>
-        </div>
-
-        <!-- Row 8: Rating / Cargo Specifications Table Grid -->
-        <table class="awb-table-grid">
-            <thead>
-                <tr>
-                    <th style="width: 8%">No. of Pcs</th>
-                    <th style="width: 12%">Gross Wt (Kg)</th>
-                    <th style="width: 8%">Rate Class</th>
-                    <th style="width: 15%">Chargeable Wt</th>
-                    <th style="width: 12%">Rate/Charge</th>
-                    <th style="width: 15%">Total</th>
-                    <th style="width: 30%">Nature/Qty of Goods (incl. Dimensions)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="min-h-150">
-                    <td class="text-center value">1</td>
-                    <td class="text-center value">100</td>
-                    <td class="text-center value">As Per Tariff</td>
-                    <td class="text-center value">100</td>
-                    <td class="text-right value">9.00</td>
-                    <td class="text-right value">900.00</td>
-                    <td class="value padding-xs text-xs">
-                        1p 11 x 11 x 11<br>
-                        Volumetric Weight: 0.2
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Row 9: Total Summary Block Grid Splits -->
-        <div class="grid-row border-bottom">
-            <div class="col-6 border-right">
-                <div class="grid-row border-bottom text-xs">
-                    <div class="col-4 padding-xs border-right"><span class="label">Weight Charge</span></div>
-                    <div class="col-4 padding-xs border-right"><span class="label">Prepaid</span><div class="value text-right">900.00</div></div>
-                    <div class="col-4 padding-xs"><span class="label">Collect</span><div class="value text-right"></div></div>
-                </div>
-                <div class="grid-row border-bottom text-xs">
-                    <div class="col-4 padding-xs border-right"><span class="label">Valuation Charge</span></div>
-                    <div class="col-4 padding-xs border-right"><span class="label">Prepaid</span><div class="value text-right">0.00</div></div>
-                    <div class="col-4 padding-xs"><span class="label">Collect</span><div class="value text-right"></div></div>
-                </div>
-                <div class="grid-row text-xs">
-                    <div class="col-4 padding-xs border-right"><span class="label">Total Prepaid / Coll</span></div>
-                    <div class="col-4 padding-xs border-right"><span class="label">Total Prepaid</span><div class="value bold text-right">900.00</div></div>
-                    <div class="col-4 padding-xs"><span class="label">Total Collect</span><div class="value bold text-right">0.00</div></div>
-                </div>
-            </div>
+        if (savedShipments.length > 0) {
+            routeListEl.innerHTML = ''; // Clear inactive text
             
-            <div class="col-6 padding-sm text-xs justify-between">
-                <div>
-                    <span class="label">Shipper Certification Statement</span>
-                    <p class="cert-text">Shipper certifies that the particulars on the face hereof are correct and that insofar as any part of the consignment contains dangerous goods...</p>
-                </div>
-                <div class="signature-line margin-top-lg">
-                    <span class="label">Signature of Shipper or his Agent</span>
-                </div>
-            </div>
-        </div>
+            savedShipments.forEach((shipment, index) => {
+                const originCoord = airportRegistry[shipment.origin.toUpperCase()];
+                const destCoord = airportRegistry[shipment.destination.toUpperCase()];
 
-        <!-- Final Tracking Footer Row -->
-        <div class="grid-row padding-sm">
-            <div class="col-6 text-xs">
-                <span class="label">Executed at Place / Date</span>
-                <div class="value">NYC AIRPORT / 2026</div>
-            </div>
-            <div class="col-6 text-right font-md bold">
-                001-12345678
-            </div>
-        </div>
+                // Output text telemetry into control panel
+                const item = document.createElement('div');
+                item.className = 'route-item';
+                item.innerHTML = `<strong>AWB:</strong> ${shipment.awbNumber}<br><strong>Flight Path:</strong> ${shipment.origin} &rarr; ${shipment.destination}`;
+                routeListEl.appendChild(item);
 
-    </div>
+                // If coordinates are configured in the registry, plot them visually
+                if (originCoord && destCoord) {
+                    // Mark Origin Airport
+                    L.marker(originCoord).addTo(map)
+                        .bindPopup(`<b>Origin: ${shipment.origin}</b><br>AWB: ${shipment.awbNumber}`);
+
+                    // Mark Destination Airport
+                    L.marker(destCoord).addTo(map)
+                        .bindPopup(`<b>Destination: ${shipment.destination}</b>`);
+
+                    // Draw operational path line joining points
+                    const pathLine = L.polyline([originCoord, destCoord], {
+                        color: '#ff4d4d',
+                        weight: 3,
+                        opacity: 0.8,
+                        dashArray: '5, 10' // Dashed line simulating flight vectors
+                    }).addTo(map);
+
+                    // Automatically adjust map viewport bounding frame around the primary flight path
+                    if (index === 0) {
+                        map.fitBounds(pathLine.getBounds(), { padding: [50, 50] });
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>
